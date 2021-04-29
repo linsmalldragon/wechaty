@@ -1,0 +1,2 @@
+export WECHATY_PUPPET="wechaty-puppet-padlocal"
+export WECHATY_PUPPET_PADLOCAL_TOKEN="puppet_padlocal_f7248dc3028c4bcbb7d453b38e632217"
