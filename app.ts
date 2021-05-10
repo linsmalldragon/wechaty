@@ -1,8 +1,8 @@
-import { PuppetPadlocal } from "wechaty-puppet-padlocal";
 import { Contact, log, Message, ScanStatus, Wechaty } from "wechaty";
+import { PuppetPadlocal } from "wechaty-puppet-padlocal";
 
 const puppet = new PuppetPadlocal({
-    token: "puppet_padlocal_f7248dc3028c4bcbb7d453b38e632217" // 输入你的token.
+    token: "puppet_padlocal_dbfdea27ac8e4c938c5dab45913728d9" // 输入你的token.
 })
 const HELPER_CONTACT_NAME='Small Dragon';
 const ADMIN='小龙';
