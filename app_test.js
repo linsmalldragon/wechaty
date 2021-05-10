@@ -1,22 +1,17 @@
 
 const { Wechaty } = require('wechaty');
-
-const name = 'wechat-puppet-wechat';
-let bot = '';
-bot = new Wechaty({
-    name, // generate xxxx.memory-card.json and save login data for the next login
+const { PuppetPadlocal } = require('wechaty-puppet-padlocal');
+const puppet = new PuppetPadlocal({
+    token: "puppet_padlocal_f7248dc3028c4bcbb7d453b38e632217"
+})
+let bot = new Wechaty({
+    name: 'test',
+    puppet
 });
 
+const HELPER_CONTACT_NAME='Small Dragon';
+const ADMIN='小龙';
 
-const data = {
-    "greeting": "hi\n",
-    "admin": "萌伢",
-    "HELPER_CONTACT_NAME": "Small Dragon",
-    "words": {
-        "书法": "书法爱好者群",
-        "国画": "国画爱好者群"
-    }
-}
 //  二维码生成
 function onScan(qrcode, status) {
     require('qrcode-terminal').generate(qrcode); // 在console端显示二维码
@@ -29,12 +24,7 @@ function onScan(qrcode, status) {
 
 // 登录
 async function onLogin(user) {
-    console.log(`贴心小助理${user}登录了`);
-    //   if (config.AUTOREPLY) {
-    //     console.log(`已开启机器人自动聊天模式`);
-    //   }
-    // 登陆后创建定时任务
-    //   await initDay();
+    console.log(`小助理${user}登录了`);
 }
 
 //登出
@@ -98,7 +88,7 @@ function getNextGroupName(groupName) {
 // 创建一个群
 async function createRoom(contact, groupName) {
     // 三个人开始建群
-    const helperContact = await bot.Contact.find({ name: data.HELPER_CONTACT_NAME })
+    const helperContact = await bot.Contact.find({ name: HELPER_CONTACT_NAME })
 
     if (!helperContact) {
         await contact.say(`没有这个朋友："${helperContact.name()}",或者TA违规了，需要换一个人协助建群`)
@@ -167,17 +157,12 @@ async function onMessage(msg) {
     const text = msg.text()
     console.log('msg', text)
 
-    if (!from || msg.self()) {
+    if (!from ) { // msg.self()
         return
     }
 
     // 
-    if (await from.name() == data.admin) {
-        if (/^更新$/i.test(text)) {
-            const admin = await bot.Contact.find({ name: "程序员LIYI" })
-            await admin.sync()
-            return
-        }
+    if (await from.name() == ADMIN) {
         if (/^退出$/i.test(text)) {
             await bot.logout()
             return
@@ -187,11 +172,11 @@ async function onMessage(msg) {
     // 踢出某人
     if (room) {
         // ok
-        let execKickUserRes = /^@(.*)? 勿发$/i.exec(text)
+        let execKickUserRes = /^@(.*)? 勿发$/i.exec(text)
         if (execKickUserRes) {
             let toUserName = execKickUserRes[1]
             // 只有机器人可以踢人
-            if (from.name() == data.admin) {
+            if (from.name() == ADMIN) {
                 let toContact = await room.member({ name: new RegExp(`^${toUserName}$`, 'i') })
                 await room.del(toContact)
                 room.say(`已将${toContact.name()}移出`)
@@ -203,34 +188,17 @@ async function onMessage(msg) {
     // 用户主动申请加群
     let getWorkRes = /^申请加入([\u4E00-\u9FA5]{2,4})?群$/i.exec(text)
     if (getWorkRes) {
-        let word = getWorkRes[1]//书法
-        let groupName = data.words[word]
+        let word = getWorkRes[1]
+        let groupName = word+'群';
         if (groupName) {
-            dealWithGroup(from, groupName, msg,false)
+            dealWithGroup(from, groupName, msg, false)
         }
         return
     }
-
-    // #查询 xxx
-    // 用户主动查询支付过的订单
-    // let userQueryPayerRes = /^#查询(\d{4}\w+)?$/i.exec(text)
-    // if (userQueryPayerRes) {
-    //     let out_trade_no = userQueryPayerRes[1]
-    //     const usersData = util.readFile('./user.json')
-    //     let userDataObject = usersData[out_trade_no]
-    //     if (userDataObject) {
-    //         userQueryOldOrder(msg, userDataObject)
-    //     }
-    //     return
-    // }
-    // 
 }
 
 bot.on('scan', onScan);
 bot.on('login', onLogin);
 bot.on('logout', onLogout);
 bot.on('message', onMessage)
-bot
-    .start()
-    .then(() => console.log('开始登陆微信'))
-    .catch((e) => console.error(e));
+bot.start().then(() => console.log('开始登陆微信')).catch((e) => console.error(e));

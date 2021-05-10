@@ -4,7 +4,8 @@ import { Contact, log, Message, ScanStatus, Wechaty } from "wechaty";
 const puppet = new PuppetPadlocal({
     token: "puppet_padlocal_f7248dc3028c4bcbb7d453b38e632217" // 输入你的token.
 })
-
+const HELPER_CONTACT_NAME='Small Dragon';
+const ADMIN='小龙';
 const bot = new Wechaty({
     name: "TestBot",
     puppet,
@@ -39,12 +40,29 @@ const bot = new Wechaty({
             const s1 = message.text().toString().split("价格")[0];
             let result = await coinBot(s1);
             const member = message.talker();
+            const to = message.to();
+            let sendUser;
+            if(member.name()===ADMIN){
+                sendUser=to;
+            }else{
+                sendUser=member;
+            }
             if (result != null) {
-                message.room().say("\n" + result, member);
+                if (message.room()) {
+                    message.room().say("\n" + result, member);
+                } else {
+                    
+                    sendUser.say("\n" + result);
+                }
             }
             else {
                 log.info(message.toString());
-                message.room().say("\n" + "没这币", member);
+                if (message.room()) {
+                    message.room().say("\n" + "没这币", member);
+                } else {
+                    sendUser.say("\n" + "没这币");
+                }
+
             }
         };
     })
